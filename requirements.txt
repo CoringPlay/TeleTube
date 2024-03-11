@@ -1,0 +1,2 @@
+python-telegram-bot==13.7
+pytube==12.1.0
