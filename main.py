@@ -24,14 +24,13 @@ def download_video(update, context):
 def download_single_video(update, context, url):
     try:
         yt = YouTube(url)
-        video = yt.streams.filter(file_extension='mp4').first()
+        video = yt.streams.filter(file_extension='mp4').get_highest_resolution()
         download_path = video.download()
         update.message.reply_text('Видео загружено, отправляю...')
         update.message.reply_video(video=open(download_path, 'rb'))
         os.remove(download_path)
     except AgeRestrictedError:
-        update.message.reply_text(
-            'Произошла ошибка при попытке скачать видео. Возможно, видео имеет ограничения, которые мешают его загрузке.')
+        update.message.reply_text('Произошла ошибка при попытке скачать видео. Возможно, видео имеет ограничения, которые мешают его загрузке.')
     except Exception as e:
         update.message.reply_text(f'Произошла ошибка при скачивании видео: {e}')
     except TimedOut as e:
@@ -45,21 +44,18 @@ def download_playlist(update, context, url, chat_id):
         successful_downloads = 0
         for index, video_url in enumerate(pl.video_urls, start=1):
             if not user_data.get(chat_id, {}).get('downloading'):
-                update.message.reply_text(
-                    f'Загрузка плейлиста остановлена. Успешно загружено {successful_downloads} из {total_videos} видео.')
+                update.message.reply_text(f'Загрузка плейлиста остановлена. Успешно загружено {successful_downloads} из {total_videos} видео.')
                 break
             try:
                 download_and_send_video(video_url, update, context, chat_id)
                 successful_downloads += 1
             except AgeRestrictedError:
-                update.message.reply_text(
-                    f'Видео {index} из {total_videos} имеет возрастные ограничения и будет пропущено.')
+                update.message.reply_text(f'Видео {index} из {total_videos} имеет возрастные ограничения и будет пропущено.')
             except Exception as e:
                 update.message.reply_text(f'Произошла ошибка при скачивании видео {index} из {total_videos}: {e}')
             update.message.reply_text(f'Прогресс: {index} из {total_videos} видео обработано.')
         if user_data.get(chat_id, {}).get('downloading'):
-            update.message.reply_text(
-                f'Все видео из плейлиста загружены и отправлены. Успешно загружено {successful_downloads} из {total_videos} видео.')
+            update.message.reply_text(f'Все видео из плейлиста загружены и отправлены. Успешно загружено {successful_downloads} из {total_videos} видео.')
         user_data[chat_id]['downloading'] = False
     except Exception as e:
         update.message.reply_text(f'Произошла ошибка при скачивании плейлиста: {e}')
@@ -68,7 +64,7 @@ def download_playlist(update, context, url, chat_id):
 def download_and_send_video(url, update, context, chat_id):
     try:
         yt = YouTube(url)
-        video = yt.streams.filter(file_extension='mp4').first()
+        video = yt.streams.filter(file_extension='mp4').get_highest_resolution()
         file_size = video.filesize
         estimated_time = calculate_estimated_time(file_size)
         update.message.reply_text(f'Ожидаемое время загрузки видео: {estimated_time} секунд.')
