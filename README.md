@@ -21,8 +21,8 @@ pip
 1. Скопируйте репозиторий:
 
 ```bash
-git clone https://github.com/your-username/your-bot-repo.git
-cd your-bot-repo
+git clone https://github.com/CoringPlay/TeleTube.git
+cd TeleTube
 ```
 
 2. Установите необходимые библиотеки:
